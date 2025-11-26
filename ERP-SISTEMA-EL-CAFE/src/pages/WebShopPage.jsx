@@ -23,7 +23,7 @@ const WebShopPage = () => {
         <h1 className="section-title">Web Shop</h1>
         <div className="row-12">
           <Input placeholder="Buscar" value={filtros.q} onChange={(e) => setFiltros({ ...filtros, q: e.target.value })} />
-          <Select value={categoria} onChange={(v) => { setCategoria(v); setFiltros({ ...filtros, categoria: v }); }} options={[{ value: '', label: 'Todas' }, { value: 'Bebidas', label: 'Bebidas' }, { value: 'Panadería', label: 'Panadería' }]} />
+          <Select value={categoria} onChange={(e) => { const v = e.target.value; setCategoria(v); setFiltros({ ...filtros, categoria: v }); }} options={[{ value: '', label: 'Todas' }, { value: 'Bebidas', label: 'Bebidas' }, { value: 'Panadería', label: 'Panadería' }]} />
         </div>
       </div>
 

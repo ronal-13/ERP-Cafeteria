@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { useVentas, useClientes } from '../hooks/useVentas';
 import Button from '../components/common/Button';
 import Table from '../components/common/Table';
@@ -6,15 +6,29 @@ import Modal from '../components/common/Modal';
 import Input from '../components/common/Input';
 import Select from '../components/common/Select';
 import { Form, FormGroup, FormActions } from '../components/forms/Form';
+import { ShoppingCart, Eye, FileText, Mail, Ban } from 'lucide-react';
+import empresa from '../config/empresa';
+import { buildEmailHTML } from '../templates/emailTemplate';
+import { buildBoletaHTML } from '../templates/boletaTemplate';
+import inventarioService from '../services/inventarioService';
 
 const VentasPage = () => {
-  const { ventas, loading, crearVenta, actualizarVenta, eliminarVenta, anularVenta, generarPDF, enviarComprobanteEmail, refetch } = useVentas();
+  const { ventas, loading, crearVenta, actualizarVenta, eliminarVenta, anularVenta, generarPDF, enviarComprobanteEmail, registrarImpresion, refetch } = useVentas();
   const { clientes } = useClientes();
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [ventaSeleccionada, setVentaSeleccionada] = useState(null);
   const [filtros, setFiltros] = useState({ desde: '', hasta: '', cliente: '', metodoPago: '' });
   const [errorMsg, setErrorMsg] = useState('');
+  const [isEmailPreviewOpen, setIsEmailPreviewOpen] = useState(false);
+  const [emailHtml, setEmailHtml] = useState('');
+  const [emailDestino, setEmailDestino] = useState('');
+  const [isPdfPreviewOpen, setIsPdfPreviewOpen] = useState(false);
+  const [pdfHtml, setPdfHtml] = useState('');
+  const [ticketWidth, setTicketWidth] = useState(empresa.ticketWidthMm || 80);
+  const pdfFrameRef = useRef(null);
+  const [codigoScan, setCodigoScan] = useState('');
+  const [scanError, setScanError] = useState('');
   const [formData, setFormData] = useState({
     cliente: '',
     empleado: '',
@@ -101,17 +115,19 @@ const VentasPage = () => {
     }
   };
 
-  const handlePDF = async (venta) => {
-    const pdf = await generarPDF(venta.id);
-    if (pdf) alert(`PDF generado: ${pdf.id}`);
+  const handlePDF = (venta) => {
+    setPdfHtml(buildBoletaHTML(venta, empresa, { widthMm: ticketWidth, autoPrint: false }));
+    setVentaSeleccionada(venta);
+    setIsPdfPreviewOpen(true);
   };
 
-  const handleEmail = async (venta) => {
-    const email = prompt('Correo destino del comprobante:', 'cliente@correo.com');
-    if (email) {
-      const ok = await enviarComprobanteEmail(venta.id, email);
-      if (ok) alert('Comprobante enviado');
-    }
+  const handleEmail = (venta) => {
+    const clienteInfo = clientes.find(c => c.nombre === venta.cliente);
+    const emailDefault = clienteInfo?.email || 'cliente@correo.com';
+    setEmailDestino(emailDefault);
+    setEmailHtml(buildEmailHTML(venta, empresa));
+    setVentaSeleccionada(venta);
+    setIsEmailPreviewOpen(true);
   };
 
   const handleSubmit = async (e) => {
@@ -175,7 +191,10 @@ const VentasPage = () => {
   return (
     <div className="page">
       <div className="row-16" style={{ justifyContent: 'space-between', marginBottom: 16 }}>
-        <h1 className="section-title">Gestión de Ventas</h1>
+        <div className="title-wrap">
+          <ShoppingCart size={20} />
+          <h1 className="section-title title-strong">Gestión de Ventas</h1>
+        </div>
         <Button onClick={handleNuevaVenta} variant="success" disabled={loading}>Nueva Venta</Button>
       </div>
 
@@ -186,7 +205,7 @@ const VentasPage = () => {
       )}
 
       <div className="card" style={{ marginBottom: 16, padding: 16 }}>
-        <div className="row-16" style={{ gap: 12, alignItems: 'flex-end' }}>
+        <div className="filters-row">
           <Input label="Desde" type="date" value={filtros.desde} onChange={(e) => setFiltros({ ...filtros, desde: e.target.value })} />
           <Input label="Hasta" type="date" value={filtros.hasta} onChange={(e) => setFiltros({ ...filtros, hasta: e.target.value })} />
           <Input label="Cliente" value={filtros.cliente} onChange={(e) => setFiltros({ ...filtros, cliente: e.target.value })} placeholder="Nombre" />
@@ -203,10 +222,39 @@ const VentasPage = () => {
           onDelete={handleEliminarVenta}
           renderActions={(row) => (
             <>
-              <button className="btn btn-primary" onClick={(e) => { e.stopPropagation(); handleEditarVenta(row); }}>Ver</button>
-              <button className="btn" onClick={(e) => { e.stopPropagation(); handlePDF(row); }}>PDF</button>
-              <button className="btn" onClick={(e) => { e.stopPropagation(); handleEmail(row); }}>Email</button>
-              <button disabled={row.estado === 'Anulado'} className="btn btn-warning" onClick={(e) => { e.stopPropagation(); handleAnularVenta(row); }}>Anular</button>
+              <Button
+                variant="primary"
+                size="small"
+                onlyIcon
+                title="Ver"
+                onClick={(e) => { e.stopPropagation(); handleEditarVenta(row); }}
+                icon={<Eye size={16} />}
+              />
+              <Button
+                variant="secondary"
+                size="small"
+                onlyIcon
+                title="PDF"
+                onClick={(e) => { e.stopPropagation(); handlePDF(row); }}
+                icon={<FileText size={16} />}
+              />
+              <Button
+                variant="secondary"
+                size="small"
+                onlyIcon
+                title="Email"
+                onClick={(e) => { e.stopPropagation(); handleEmail(row); }}
+                icon={<Mail size={16} />}
+              />
+              <Button
+                variant="warning"
+                size="small"
+                onlyIcon
+                title="Anular"
+                disabled={row.estado === 'Anulado'}
+                onClick={(e) => { e.stopPropagation(); handleAnularVenta(row); }}
+                icon={<Ban size={16} />}
+              />
             </>
           )}
           emptyMessage="No hay ventas registradas"
@@ -269,6 +317,11 @@ const VentasPage = () => {
               <h3 className="section-title">Productos</h3>
               <Button type="button" variant="secondary" onClick={addProducto}>Agregar</Button>
             </div>
+            <div className="row-16" style={{ marginBottom: 8 }}>
+              <Input label="Código de barras / SKU" value={codigoScan} onChange={(e) => setCodigoScan(e.target.value)} placeholder="Escanee o escriba el código" />
+              <Button type="button" variant="primary" onClick={agregarPorCodigo}>Agregar por código</Button>
+            </div>
+            {scanError && <div className="error-text" style={{ marginBottom: 8 }}>{scanError}</div>}
             <table className="table">
               <thead>
                 <tr>
@@ -328,8 +381,104 @@ const VentasPage = () => {
           </FormActions>
         </Form>
       </Modal>
+
+      <Modal
+        isOpen={isPdfPreviewOpen}
+        onClose={() => setIsPdfPreviewOpen(false)}
+        title={'Previsualización de boleta'}
+      >
+        <div className="stack-16">
+          <div className="row-16" style={{ alignItems: 'center', justifyContent: 'space-between' }}>
+            <div className="row-12" style={{ alignItems: 'center' }}>
+              <Select
+                label="Ancho papel (mm)"
+                options={[{ value: '58', label: '58 mm' }, { value: '80', label: '80 mm' }]}
+                value={String(ticketWidth)}
+                onChange={(e) => {
+                  const w = Number(e.target.value);
+                  setTicketWidth(w);
+                  if (ventaSeleccionada) setPdfHtml(buildBoletaHTML(ventaSeleccionada, empresa, { widthMm: w, autoPrint: false }));
+                }}
+              />
+            </div>
+            <Button
+              variant="primary"
+              onClick={() => {
+                const frame = pdfFrameRef.current;
+                if (frame && frame.contentWindow) {
+                  frame.contentWindow.focus();
+                  frame.contentWindow.print();
+                }
+                if (ventaSeleccionada) {
+                  registrarImpresion(ventaSeleccionada.id, { widthMm: ticketWidth });
+                }
+              }}
+            >
+              Imprimir boleta
+            </Button>
+          </div>
+          <div className="card" style={{ padding: 0 }}>
+            <iframe
+              title="pdf-preview"
+              srcDoc={pdfHtml}
+              ref={pdfFrameRef}
+              style={{ width: '100%', height: 520, border: 'none', borderRadius: 12 }}
+            />
+          </div>
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={isEmailPreviewOpen}
+        onClose={() => setIsEmailPreviewOpen(false)}
+        title={'Previsualización de correo'}
+      >
+        <div className="stack-16">
+          <Input
+            label="Correo destino"
+            value={emailDestino}
+            onChange={(e) => setEmailDestino(e.target.value)}
+            placeholder="cliente@correo.com"
+          />
+          <div className="card" style={{ padding: 0 }}>
+            <iframe
+              title="email-preview"
+              srcDoc={emailHtml}
+              style={{ width: '100%', height: 480, border: 'none', borderRadius: 12 }}
+            />
+          </div>
+          <div className="form-actions">
+            <Button variant="secondary" onClick={() => setIsEmailPreviewOpen(false)}>Cancelar</Button>
+            <Button
+              variant="primary"
+              onClick={async () => {
+                const ok = await enviarComprobanteEmail(ventaSeleccionada.id, emailDestino);
+                if (ok) {
+                  setIsEmailPreviewOpen(false);
+                  alert('Comprobante enviado');
+                }
+              }}
+            >
+              Enviar correo
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };
 
 export default VentasPage;
+  const agregarPorCodigo = () => {
+    setScanError('');
+    const prod = inventarioService.getProductoByCodigo(codigoScan);
+    if (!prod) {
+      setScanError('Código no encontrado');
+      return;
+    }
+    setFormData(prev => ({
+      ...prev,
+      productos: [...prev.productos, { nombre: prod.nombre, cantidad: 1, precio: Number(prod.precioVenta || 0), descuento: 0 }]
+    }));
+    setCodigoScan('');
+  };

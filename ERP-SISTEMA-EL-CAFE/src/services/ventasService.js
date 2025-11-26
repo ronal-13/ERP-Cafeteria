@@ -68,6 +68,9 @@ import cajaService from './cajaService';
 import sunatService from './sunatService';
 import syncService from './syncService';
 import authService from './authService';
+import empresa from '../config/empresa';
+import { buildBoletaHTML } from '../templates/boletaTemplate';
+import { buildEmailHTML } from '../templates/emailTemplate';
 
 const IGV = 0.18;
 
@@ -187,9 +190,9 @@ class VentasService {
       setTimeout(() => {
         const v = ventasData.find(x => x.id === id);
         if (!v) return resolve(null);
-        const pdf = { id: `PDF-${v.numeroComprobante}`, content: `Venta ${v.numeroComprobante} - Total S/ ${v.total}` };
-        resolve(pdf);
-      }, 300);
+        const html = buildBoletaHTML(v, empresa);
+        resolve({ id: `PDF-${v.numeroComprobante}`, html });
+      }, 200);
     });
   }
 
@@ -201,8 +204,23 @@ class VentasService {
         if (!v) return resolve(false);
         v.emailEnviadoA = email || (v.clienteEmail || '');
         v.emailEnviadoPor = user ? user.email : '';
+        v.emailHtml = buildEmailHTML(v, empresa);
         resolve(true);
-      }, 300);
+      }, 200);
+    });
+  }
+
+  async registrarImpresion(id, opciones = {}) {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        const v = ventasData.find(x => x.id === id);
+        const user = authService.getCurrentUser();
+        if (!v) return resolve(false);
+        v.impresoAt = new Date().toISOString();
+        v.impresoPor = user ? user.email : '';
+        v.impresoWidthMm = opciones.widthMm || null;
+        resolve(true);
+      }, 150);
     });
   }
 }

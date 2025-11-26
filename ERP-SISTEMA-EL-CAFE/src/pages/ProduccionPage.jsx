@@ -6,6 +6,7 @@ import Modal from '../components/common/Modal';
 import Input from '../components/common/Input';
 import Select from '../components/common/Select';
 import { Form, FormGroup, FormActions } from '../components/forms/Form';
+import { Pencil, Trash2 } from 'lucide-react';
 
 const ProduccionPage = () => {
   const { produccion, registrarProduccion } = useProduccion();
@@ -186,7 +187,7 @@ const ProduccionPage = () => {
   return (
     <div className="page">
       <div className="row-16" style={{ justifyContent: 'space-between', marginBottom: 16 }}>
-        <h1 className="section-title">Gestión de Producción</h1>
+        <h1 className="section-title title-strong">Gestión de Producción</h1>
         <div className="row-12">
           <Button onClick={handleNuevaProduccion} variant="success">Nueva Producción</Button>
           <Button onClick={handleNuevaReceta} variant="primary">Nueva Receta</Button>
@@ -216,8 +217,22 @@ const ProduccionPage = () => {
             emptyMessage="No hay recetas registradas"
             renderActions={(row) => (
               <>
-                <button className="btn btn-primary" onClick={(e) => { e.stopPropagation(); handleEditarReceta(row); }}>Editar</button>
-                <button className="btn btn-danger" onClick={(e) => { e.stopPropagation(); handleEliminarReceta(row); }}>Eliminar</button>
+                <Button
+                  variant="primary"
+                  size="small"
+                  onlyIcon
+                  title="Editar"
+                  onClick={(e) => { e.stopPropagation(); handleEditarReceta(row); }}
+                  icon={<Pencil size={16} />}
+                />
+                <Button
+                  variant="danger"
+                  size="small"
+                  onlyIcon
+                  title="Eliminar"
+                  onClick={(e) => { e.stopPropagation(); handleEliminarReceta(row); }}
+                  icon={<Trash2 size={16} />}
+                />
               </>
             )}
           />
@@ -354,7 +369,17 @@ const ProduccionPage = () => {
                     <td><Input type="number" step="0.01" value={i.cantidad} onChange={(e) => updateInsumo(idx, 'cantidad', e.target.value)} /></td>
                     <td><Input value={i.unidad} onChange={(e) => updateInsumo(idx, 'unidad', e.target.value)} placeholder="kg/litro/unidad" /></td>
                     <td><Input type="number" step="0.01" value={i.costo} onChange={(e) => updateInsumo(idx, 'costo', e.target.value)} /></td>
-                    <td><button type="button" className="btn btn-danger" onClick={() => removeInsumo(idx)}>Quitar</button></td>
+                    <td>
+                      <Button
+                        type="button"
+                        variant="danger"
+                        size="small"
+                        onlyIcon
+                        title="Quitar"
+                        onClick={() => removeInsumo(idx)}
+                        icon={<Trash2 size={16} />}
+                      />
+                    </td>
                   </tr>
                 ))}
               </tbody>

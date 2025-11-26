@@ -6,6 +6,7 @@ import Modal from '../components/common/Modal';
 import Input from '../components/common/Input';
 import Select from '../components/common/Select';
 import { Form, FormGroup, FormActions } from '../components/forms/Form';
+import { Pencil, Trash2, Wrench, List } from 'lucide-react';
 
 const InventarioPage = () => {
   const { productos, loading, crearProducto, editarProducto, eliminarProducto, actualizarStock, ajustarInventarioSet } = useInventario();
@@ -228,7 +229,7 @@ const InventarioPage = () => {
   return (
     <div className="page">
       <div className="row-16" style={{ justifyContent: 'space-between', marginBottom: 16 }}>
-        <h1 className="section-title">Gestión de Inventario</h1>
+        <h1 className="section-title title-strong">Gestión de Inventario</h1>
         <div className="row-12">
           <Button onClick={handleNuevoProducto} variant="success" disabled={loading}>Nuevo Producto</Button>
           <Button onClick={handleNuevoMovimiento} variant="warning" disabled={loading}>Registrar Movimiento</Button>
@@ -268,10 +269,38 @@ const InventarioPage = () => {
             emptyMessage="No hay productos registrados"
             renderActions={(row) => (
               <>
-                <button className="btn btn-primary" onClick={(e) => { e.stopPropagation(); handleEditarProducto(row); }}>Editar</button>
-                <button className="btn btn-danger" onClick={(e) => { e.stopPropagation(); handleEliminarProducto(row); }}>Eliminar</button>
-                <button className="btn" onClick={(e) => { e.stopPropagation(); handleVerMovimientos(row); }}>Movimientos</button>
-                <button className="btn btn-secondary" onClick={(e) => { e.stopPropagation(); handleAjusteProducto(row); }}>Ajustar</button>
+                <Button
+                  variant="primary"
+                  size="small"
+                  onlyIcon
+                  title="Editar"
+                  onClick={(e) => { e.stopPropagation(); handleEditarProducto(row); }}
+                  icon={<Pencil size={16} />}
+                />
+                <Button
+                  variant="danger"
+                  size="small"
+                  onlyIcon
+                  title="Eliminar"
+                  onClick={(e) => { e.stopPropagation(); handleEliminarProducto(row); }}
+                  icon={<Trash2 size={16} />}
+                />
+                <Button
+                  variant="secondary"
+                  size="small"
+                  onlyIcon
+                  title="Movimientos"
+                  onClick={(e) => { e.stopPropagation(); handleVerMovimientos(row); }}
+                  icon={<List size={16} />}
+                />
+                <Button
+                  variant="secondary"
+                  size="small"
+                  onlyIcon
+                  title="Ajustar"
+                  onClick={(e) => { e.stopPropagation(); handleAjusteProducto(row); }}
+                  icon={<Wrench size={16} />}
+                />
               </>
             )}
           />

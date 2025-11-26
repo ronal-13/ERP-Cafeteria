@@ -1,4 +1,6 @@
 import React from 'react';
+import Button from './Button';
+import { Pencil, Trash2 } from 'lucide-react';
 
 const Table = ({ 
   columns = [], 
@@ -47,26 +49,30 @@ const Table = ({
                     <div style={{ display: 'flex', gap: 8 }}>
                       {renderActions && renderActions(row)}
                       {onEdit && (
-                        <button
+                        <Button
+                          variant="secondary"
+                          size="small"
+                          onlyIcon
+                          title="Editar"
                           onClick={(e) => {
                             e.stopPropagation();
                             onEdit(row);
                           }}
-                          className="btn btn-secondary"
-                        >
-                          Editar
-                        </button>
+                          icon={<Pencil size={16} />}
+                        />
                       )}
                       {onDelete && (
-                        <button
+                        <Button
+                          variant="danger"
+                          size="small"
+                          onlyIcon
+                          title="Eliminar"
                           onClick={(e) => {
                             e.stopPropagation();
                             onDelete(row);
                           }}
-                          className="btn btn-danger"
-                        >
-                          Eliminar
-                        </button>
+                          icon={<Trash2 size={16} />}
+                        />
                       )}
                     </div>
                   </td>

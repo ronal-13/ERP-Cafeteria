@@ -3,6 +3,7 @@ export const productosData = [
   {
     id: 1,
     nombre: 'Café Americano',
+    sku: '750100000001',
     categoria: 'Bebidas',
     stock: 50,
     stockMinimo: 10,
@@ -15,6 +16,7 @@ export const productosData = [
   {
     id: 2,
     nombre: 'Croissant',
+    sku: '750100000002',
     categoria: 'Panadería',
     stock: 30,
     stockMinimo: 15,
@@ -27,6 +29,7 @@ export const productosData = [
   {
     id: 3,
     nombre: 'Leche',
+    sku: '750100000003',
     categoria: 'Lácteos',
     stock: 25,
     stockMinimo: 5,
@@ -119,6 +122,9 @@ class InventarioService {
   }
   getProductoByNombre(nombre) {
     return productosData.find(p => p.nombre === nombre) || null;
+  }
+  getProductoByCodigo(codigo) {
+    return productosData.find(p => String(p.sku || '').trim() === String(codigo || '').trim()) || null;
   }
   hasSufficientStock(nombre, cantidad) {
     const p = this.getProductoByNombre(nombre);

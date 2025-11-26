@@ -5,6 +5,7 @@ import Table from '../components/common/Table';
 import Input from '../components/common/Input';
 import Modal from '../components/common/Modal';
 import { Form, FormGroup, FormActions } from '../components/forms/Form';
+import { Pencil, Trash2 } from 'lucide-react';
 
 const AdminWebDashboard = () => {
   const { productos, pedidos, loading, error, refetchProductos, refetchPedidos, crearProductoWeb, editarProductoWeb, eliminarProductoWeb } = useWebAdmin();
@@ -73,8 +74,22 @@ const AdminWebDashboard = () => {
           emptyMessage={loading ? 'Cargando...' : 'Sin productos'}
           renderActions={(row) => (
             <>
-              <button className="btn btn-primary" onClick={(e) => { e.stopPropagation(); openEdit(row); }}>Editar</button>
-              <button className="btn btn-danger" onClick={(e) => { e.stopPropagation(); eliminarProductoWeb(row.id); }}>Eliminar</button>
+              <Button
+                variant="primary"
+                size="small"
+                onlyIcon
+                title="Editar"
+                onClick={(e) => { e.stopPropagation(); openEdit(row); }}
+                icon={<Pencil size={16} />}
+              />
+              <Button
+                variant="danger"
+                size="small"
+                onlyIcon
+                title="Eliminar"
+                onClick={(e) => { e.stopPropagation(); eliminarProductoWeb(row.id); }}
+                icon={<Trash2 size={16} />}
+              />
             </>
           )}
         />

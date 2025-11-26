@@ -105,6 +105,19 @@ export const useVentas = () => {
     }
   };
 
+  const registrarImpresion = async (id, opciones = {}) => {
+    try {
+      setLoading(true);
+      return await ventasService.registrarImpresion(id, opciones);
+    } catch (err) {
+      setError('Error al registrar impresión');
+      console.error('Error registrar impresion:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchVentas();
   }, []);
@@ -119,6 +132,7 @@ export const useVentas = () => {
     anularVenta,
     generarPDF,
     enviarComprobanteEmail,
+    registrarImpresion,
     refetch: fetchVentas
   };
 };

@@ -8,6 +8,9 @@ const Button = ({
   disabled = false,
   type = "button",
   className = "",
+  icon,
+  onlyIcon = false,
+  title,
 }) => {
   const variants = {
     primary: "btn-primary",
@@ -27,6 +30,7 @@ const Button = ({
     "btn",
     variants[variant] || variants.primary,
     sizes[size] || sizes.medium,
+    onlyIcon ? "btn-icon" : "",
     disabled ? "is-disabled" : "",
     className,
   ].join(" ");
@@ -37,8 +41,10 @@ const Button = ({
       className={classes}
       onClick={onClick}
       disabled={disabled}
+      title={title}
     >
-      {children}
+      {icon && <span className="btn-icon-slot">{icon}</span>}
+      {!onlyIcon && children}
     </button>
   );
 };

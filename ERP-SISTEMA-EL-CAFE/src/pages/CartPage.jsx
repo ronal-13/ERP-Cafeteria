@@ -4,6 +4,7 @@ import Button from '../components/common/Button';
 import Table from '../components/common/Table';
 import Input from '../components/common/Input';
 import { useNavigate } from 'react-router-dom';
+import { Trash2 } from 'lucide-react';
 
 const CartPage = () => {
   const { items, updateQty, removeItem, subtotal, igv, total } = useCart();
@@ -30,7 +31,14 @@ const CartPage = () => {
         data={items}
         emptyMessage="Carrito vacío"
         renderActions={(row) => (
-          <button className="btn btn-danger" onClick={(e) => { e.stopPropagation(); removeItem(row.id); }}>Eliminar</button>
+          <Button
+            variant="danger"
+            size="small"
+            onlyIcon
+            title="Eliminar"
+            onClick={(e) => { e.stopPropagation(); removeItem(row.id); }}
+            icon={<Trash2 size={16} />}
+          />
         )}
       />
 
