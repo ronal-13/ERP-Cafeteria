@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useWebAdmin } from '../hooks/useEcommerce';
+import { usePromotions } from '../hooks/usePromotions';
 import Button from '../components/common/Button';
 import Table from '../components/common/Table';
 import Input from '../components/common/Input';
@@ -9,9 +10,12 @@ import { Pencil, Trash2 } from 'lucide-react';
 
 const AdminWebDashboard = () => {
   const { productos, pedidos, loading, error, refetchProductos, refetchPedidos, crearProductoWeb, editarProductoWeb, eliminarProductoWeb } = useWebAdmin();
+  const { promos, crear: crearPromo, eliminar: eliminarPromo } = usePromotions();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editRow, setEditRow] = useState(null);
   const [form, setForm] = useState({ sku: '', nombre: '', descripcion: '', precio: 0, stock: 0, categoria: '', activo: true });
+  const [isPromoModalOpen, setIsPromoModalOpen] = useState(false);
+  const [promoForm, setPromoForm] = useState({ titulo: '', descripcion: '', categoria: '' });
 
   const colsProductos = [
     { key: 'sku', title: 'SKU' },
@@ -53,6 +57,13 @@ const AdminWebDashboard = () => {
     setIsModalOpen(false);
   };
 
+  const submitPromoForm = async (e) => {
+    e.preventDefault();
+    await crearPromo({ ...promoForm });
+    setIsPromoModalOpen(false);
+    setPromoForm({ titulo: '', descripcion: '', categoria: '' });
+  };
+
   return (
     <div className="page">
       <div className="row-16" style={{ justifyContent: 'space-between', marginBottom: 16 }}>
@@ -61,6 +72,7 @@ const AdminWebDashboard = () => {
           <Button onClick={openNew}>Nuevo Producto</Button>
           <Button variant="secondary" onClick={() => refetchProductos()}>Sincronizar Stock</Button>
           <Button variant="secondary" onClick={() => refetchPedidos()}>Actualizar Pedidos</Button>
+          <Button variant="secondary" onClick={() => setIsPromoModalOpen(true)}>Nueva Promoción</Button>
         </div>
       </div>
 
@@ -100,6 +112,25 @@ const AdminWebDashboard = () => {
         <Table columns={colsPedidos} data={pedidos} emptyMessage={loading ? 'Cargando...' : 'Sin pedidos'} />
       </div>
 
+      <div className="card" style={{ padding: 12, marginTop: 12 }}>
+        <h2 className="section-title">Promociones</h2>
+        <Table
+          columns={[
+            { key: 'titulo', title: 'Título' },
+            { key: 'categoria', title: 'Categoría' },
+          ]}
+          data={promos}
+          emptyMessage={'Sin promociones'}
+          renderActions={(row) => (
+            <Button
+              variant="danger"
+              size="small"
+              onClick={(e) => { e.stopPropagation(); eliminarPromo(row.id); }}
+            >Eliminar</Button>
+          )}
+        />
+      </div>
+
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editRow ? 'Editar Producto Web' : 'Nuevo Producto Web'}>
         <Form onSubmit={submitForm}>
           <FormGroup>
@@ -121,6 +152,24 @@ const AdminWebDashboard = () => {
           </FormGroup>
           <FormActions>
             <Button type="button" variant="secondary" onClick={() => setIsModalOpen(false)}>Cancelar</Button>
+            <Button type="submit" variant="primary">Guardar</Button>
+          </FormActions>
+        </Form>
+      </Modal>
+
+      <Modal isOpen={isPromoModalOpen} onClose={() => setIsPromoModalOpen(false)} title={'Nueva Promoción'}>
+        <Form onSubmit={submitPromoForm}>
+          <FormGroup>
+            <Input label="Título" value={promoForm.titulo} onChange={(e) => setPromoForm({ ...promoForm, titulo: e.target.value })} required />
+          </FormGroup>
+          <FormGroup>
+            <Input label="Descripción" value={promoForm.descripcion} onChange={(e) => setPromoForm({ ...promoForm, descripcion: e.target.value })} />
+          </FormGroup>
+          <FormGroup>
+            <Input label="Categoría" value={promoForm.categoria} onChange={(e) => setPromoForm({ ...promoForm, categoria: e.target.value })} />
+          </FormGroup>
+          <FormActions>
+            <Button type="button" variant="secondary" onClick={() => setIsPromoModalOpen(false)}>Cancelar</Button>
             <Button type="submit" variant="primary">Guardar</Button>
           </FormActions>
         </Form>

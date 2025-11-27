@@ -37,6 +37,7 @@ export const useWebCatalog = ({ pollingMs = 15000 } = {}) => {
 // Carrito
 export const useCart = () => {
   const [items, setItems] = useState([]);
+  const [hydrated, setHydrated] = useState(false);
 
   // Hydrate from localStorage
   useEffect(() => {
@@ -48,17 +49,22 @@ export const useCart = () => {
       }
     } catch (e) {
       console.error('cart hydrate error:', e);
+    } finally {
+      setHydrated(true);
     }
   }, []);
 
   // Persist to localStorage
   useEffect(() => {
+    if (!hydrated) return;
     try {
       localStorage.setItem('web_cart_items', JSON.stringify(items));
+      const count = items.reduce((acc, i) => acc + Number(i.cantidad || 0), 0);
+      window.dispatchEvent(new CustomEvent('web_cart_updated', { detail: { count } }));
     } catch (e) {
       console.error('cart persist error:', e);
     }
-  }, [items]);
+  }, [items, hydrated]);
 
   const addItem = (p, qty = 1) => {
     setItems(prev => {

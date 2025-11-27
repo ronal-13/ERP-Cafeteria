@@ -5,6 +5,7 @@ import Select from '../components/common/Select';
 import Button from '../components/common/Button';
 import Table from '../components/common/Table';
 import { useNavigate } from 'react-router-dom';
+import { ShoppingBag, ArrowRightCircle, Package, Banknote, CreditCard, QrCode, CheckCircle } from 'lucide-react';
 
 const CheckoutPage = () => {
   const { items, subtotal, igv, total, clear } = useCart();
@@ -55,54 +56,95 @@ const CheckoutPage = () => {
   return (
     <div className="page">
       <div className="row-16" style={{ justifyContent: 'space-between', marginBottom: 16 }}>
-        <h1 className="section-title">Checkout</h1>
-        <div className="row-12">
-          <div style={{ minWidth: 260, textAlign: 'right' }}>
-            <div>Subtotal: <strong>S/ {subtotal.toFixed(2)}</strong></div>
-            <div>IGV (18%): <strong>S/ {igv.toFixed(2)}</strong></div>
-            <div>Total: <strong>S/ {total.toFixed(2)}</strong></div>
+        <div className="title-wrap">
+          <span className="kpi-icon"><ShoppingBag size={18} /></span>
+          <h1 className="section-title title-strong">Checkout</h1>
+        </div>
+        <Button
+          variant="primary"
+          icon={<ArrowRightCircle size={18} />}
+          onClick={() => document.getElementById('pagar-btn')?.scrollIntoView({ behavior: 'smooth' })}
+        >Ir a pago</Button>
+      </div>
+
+      <div className="grid-3" style={{ marginBottom: 16 }}>
+        <div className="card kpi">
+          <div className="kpi-card">
+            <div className="kpi-icon"><Package size={18} /></div>
+            <div>
+              <div className="kpi-head">
+                <div className="kpi-value">{items.reduce((acc, i) => acc + Number(i.cantidad || 0), 0)}</div>
+                <div className="kpi-label">Productos</div>
+              </div>
+              <div className="kpi-foot">{items.length} ítems</div>
+            </div>
+          </div>
+        </div>
+        <div className="card kpi">
+          <div className="kpi-card">
+            <div className="kpi-icon"><Banknote size={18} /></div>
+            <div>
+              <div className="kpi-head">
+                <div className="kpi-value">S/ {subtotal.toFixed(2)}</div>
+                <div className="kpi-label">Subtotal</div>
+              </div>
+              <div className="kpi-foot">IGV: S/ {igv.toFixed(2)}</div>
+            </div>
+          </div>
+        </div>
+        <div className="card kpi">
+          <div className="kpi-card">
+            <div className="kpi-icon">{metodoPago === 'Yape' ? <QrCode size={18} /> : <CreditCard size={18} />}</div>
+            <div>
+              <div className="kpi-head">
+                <div className="kpi-value">S/ {total.toFixed(2)}</div>
+                <div className="kpi-label">Total · {metodoPago}</div>
+              </div>
+              <div className="kpi-foot">Incluye IGV</div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="card" style={{ padding: 16, marginBottom: 12 }}>
-        <h2 className="section-title">Datos del Cliente</h2>
-        <div className="row-16">
-          <Input label="Nombre" value={cliente.nombre} onChange={(e) => setCliente({ ...cliente, nombre: e.target.value })} />
-          <Input label="Email" value={cliente.email} onChange={(e) => setCliente({ ...cliente, email: e.target.value })} />
-          <Input label="Teléfono" value={cliente.telefono} onChange={(e) => setCliente({ ...cliente, telefono: e.target.value })} />
+      <div className="grid-2" style={{ marginBottom: 12 }}>
+        <div className="card" style={{ padding: 16 }}>
+          <h2 className="section-title">Datos del Cliente</h2>
+          <div className="grid-2" style={{ gap: 16, gridTemplateColumns: '1fr 240px', alignItems: 'start' }}>
+            <Input label="Nombre" value={cliente.nombre} onChange={(e) => setCliente({ ...cliente, nombre: e.target.value })} />
+            <Input label="DNI" className="input-narrow" value={cliente.documento} onChange={(e) => setCliente({ ...cliente, documento: e.target.value })} />
+          </div>
+          <div className="grid-2" style={{ gap: 16, marginTop: 12, gridTemplateColumns: '1fr 240px', alignItems: 'start' }}>
+            <Input label="Email" value={cliente.email} onChange={(e) => setCliente({ ...cliente, email: e.target.value })} />
+            <Input label="Teléfono" className="input-narrow" value={cliente.telefono} onChange={(e) => setCliente({ ...cliente, telefono: e.target.value })} />
+          </div>
         </div>
-        <div className="row-16">
-          <Input label="Documento" value={cliente.documento} onChange={(e) => setCliente({ ...cliente, documento: e.target.value })} />
-          <Input label="Dirección" value={cliente.direccion} onChange={(e) => setCliente({ ...cliente, direccion: e.target.value })} />
-        </div>
-      </div>
 
-      <div className="card" style={{ padding: 16, marginBottom: 12 }}>
-        <h2 className="section-title">Método de Pago</h2>
-        <Select value={metodoPago} onChange={setMetodoPago} options={[{ value: 'Culqi', label: 'Culqi' }, { value: 'Niubiz', label: 'Niubiz' }, { value: 'Yape', label: 'Yape QR' }]} />
+        <div className="card" style={{ padding: 16 }}>
+          <h2 className="section-title">Método de Pago</h2>
+          <Select value={metodoPago} onChange={setMetodoPago} options={[{ value: 'Culqi', label: 'Culqi' }, { value: 'Niubiz', label: 'Niubiz' }, { value: 'Yape', label: 'Yape QR' }]} />
 
-        {metodoPago === 'Culqi' && (
-          <div className="row-16" style={{ marginTop: 8 }}>
-            <Input label="Token Culqi (mock)" value={culqiToken} onChange={(e) => setCulqiToken(e.target.value)} />
+          {metodoPago === 'Culqi' && (
+            <div className="row-16" style={{ marginTop: 8 }}>
+              <Input label="Token Culqi (mock)" value={culqiToken} onChange={(e) => setCulqiToken(e.target.value)} />
+            </div>
+          )}
+          {metodoPago === 'Niubiz' && (
+            <div className="row-16" style={{ marginTop: 8 }}>
+              <Input label="Tarjeta Niubiz (mock)" value={niubizTarjeta} onChange={(e) => setNiubizTarjeta(e.target.value)} />
+            </div>
+          )}
+          {metodoPago === 'Yape' && (
+            <div className="row-16" style={{ marginTop: 8, gap: 16 }}>
+              <Button variant="secondary" icon={<QrCode size={18} />} onClick={handleGenerarYape}>Generar QR</Button>
+              <div dangerouslySetInnerHTML={{ __html: yape.qrSvg }} />
+            </div>
+          )}
+
+          {error && <div className="alert alert-error" style={{ marginTop: 8 }}>{error}</div>}
+
+          <div className="row-16" style={{ justifyContent: 'flex-end', marginTop: 12 }}>
+            <Button id="pagar-btn" variant="primary" icon={<CheckCircle size={18} />} onClick={handlePagar} disabled={items.length === 0 || loading}>Pagar y Confirmar</Button>
           </div>
-        )}
-        {metodoPago === 'Niubiz' && (
-          <div className="row-16" style={{ marginTop: 8 }}>
-            <Input label="Tarjeta Niubiz (mock)" value={niubizTarjeta} onChange={(e) => setNiubizTarjeta(e.target.value)} />
-          </div>
-        )}
-        {metodoPago === 'Yape' && (
-          <div className="row-16" style={{ marginTop: 8, gap: 16 }}>
-            <Button variant="secondary" onClick={handleGenerarYape}>Generar QR</Button>
-            <div dangerouslySetInnerHTML={{ __html: yape.qrSvg }} />
-          </div>
-        )}
-
-        {error && <div className="alert alert-error" style={{ marginTop: 8 }}>{error}</div>}
-
-        <div className="row-16" style={{ justifyContent: 'flex-end', marginTop: 12 }}>
-          <Button variant="primary" onClick={handlePagar} disabled={items.length === 0 || loading}>Pagar y Confirmar</Button>
         </div>
       </div>
 

@@ -6,7 +6,7 @@ import Modal from '../components/common/Modal';
 import Input from '../components/common/Input';
 import Select from '../components/common/Select';
 import { Form, FormGroup, FormActions } from '../components/forms/Form';
-import { Pencil, Trash2, Wrench, List } from 'lucide-react';
+import { Pencil, Trash2, Wrench, List, Boxes, AlertTriangle } from 'lucide-react';
 
 const InventarioPage = () => {
   const { productos, loading, crearProducto, editarProducto, eliminarProducto, actualizarStock, ajustarInventarioSet } = useInventario();
@@ -229,10 +229,52 @@ const InventarioPage = () => {
   return (
     <div className="page">
       <div className="row-16" style={{ justifyContent: 'space-between', marginBottom: 16 }}>
-        <h1 className="section-title title-strong">Gestión de Inventario</h1>
+        <div className="title-wrap">
+          <span className="kpi-icon"><Boxes size={18} /></span>
+          <h1 className="section-title title-strong">Gestión de Inventario</h1>
+        </div>
         <div className="row-12">
           <Button onClick={handleNuevoProducto} variant="success" disabled={loading}>Nuevo Producto</Button>
           <Button onClick={handleNuevoMovimiento} variant="warning" disabled={loading}>Registrar Movimiento</Button>
+        </div>
+      </div>
+
+      <div className="grid-3" style={{ marginBottom: 16 }}>
+        <div className="card kpi">
+          <div className="kpi-card">
+            <div className="kpi-icon"><Boxes size={18} /></div>
+            <div>
+              <div className="kpi-head">
+                <div className="kpi-value">{productos.length}</div>
+                <div className="kpi-label">Productos</div>
+              </div>
+              <div className="kpi-foot">Categorías: {new Set(productos.map(p => p.categoria)).size}</div>
+            </div>
+          </div>
+        </div>
+        <div className="card kpi">
+          <div className="kpi-card">
+            <div className="kpi-icon"><AlertTriangle size={18} /></div>
+            <div>
+              <div className="kpi-head">
+                <div className="kpi-value">{alertas.length}</div>
+                <div className="kpi-label">Stock bajo</div>
+              </div>
+              <div className="kpi-foot">Revisar mínimos</div>
+            </div>
+          </div>
+        </div>
+        <div className="card kpi">
+          <div className="kpi-card">
+            <div className="kpi-icon"><List size={18} /></div>
+            <div>
+              <div className="kpi-head">
+                <div className="kpi-value">{movimientos.filter(m => m.fecha === new Date().toISOString().split('T')[0]).length}</div>
+                <div className="kpi-label">Movimientos hoy</div>
+              </div>
+              <div className="kpi-foot">Total: {movimientos.length}</div>
+            </div>
+          </div>
         </div>
       </div>
 

@@ -4,7 +4,7 @@ import { useVentas } from '../hooks/useVentas';
 import SimpleAreaChart from '../components/charts/SimpleAreaChart';
 import SimpleBarChart from '../components/charts/SimpleBarChart';
 import SimplePieChart from '../components/charts/SimplePieChart';
-import { ShoppingCart, Boxes, Cog, BarChart3 } from 'lucide-react';
+import { ShoppingCart, Boxes, Cog, BarChart3, Banknote, CupSoda, CreditCard, FileText } from 'lucide-react';
 
 const DashboardPage = () => {
   const { ventas } = useVentas();
@@ -92,12 +92,22 @@ const DashboardPage = () => {
 
       <div className="grid-4" style={{ marginBottom: 16 }}>
         {cards.map((card, index) => (
-          <div key={index} className="card">
-            <div className="stat">
-              <div className="stat-value">{card.value}</div>
-              <span className="stat-label">{card.title}</span>
+          <div key={index} className="card kpi">
+            <div className="kpi-card">
+              <div className="kpi-icon" aria-hidden="true">
+                {index === 0 && <Banknote size={18} />}
+                {index === 1 && <CupSoda size={18} />}
+                {index === 2 && <CreditCard size={18} />}
+                {index === 3 && <FileText size={18} />}
+              </div>
+              <div>
+                <div className="kpi-head">
+                  <div className="kpi-value">{card.value}</div>
+                  <div className="kpi-label">{card.title}</div>
+                </div>
+                <div className="kpi-foot">{card.change}</div>
+              </div>
             </div>
-            <div className="stat-label" style={{ marginTop: 8 }}>{card.change}</div>
           </div>
         ))}
       </div>

@@ -64,7 +64,7 @@ const Sidebar = () => {
 
   return (
     <aside
-      className="sidebar"
+      className={`sidebar ${collapsed ? "is-collapsed" : ""}`}
       style={{
         width: "var(--sidebar-width, 240px)",
         background: "#0f172a",
@@ -101,16 +101,20 @@ const Sidebar = () => {
           style={{ borderRadius: 12, objectFit: "cover" }}
         />
         <button
-          className="layout-toggle layout-float"
+          className="layout-toggle"
           title={collapsed ? "Expandir" : "Contraer"}
           aria-label="Toggle sidebar"
           onClick={toggleCollapsed}
-          style={{ position: "absolute", top: 8, right: -14, zIndex: 50 }}
         >
           <img
             src={toggleIcon}
             alt=""
-            style={{ width:  20, height: 20, filter: "brightness(0) invert(1)", transform: collapsed ? "rotate(180deg)" : "none" }}
+            style={{
+              width: 20,
+              height: 20,
+              filter: "brightness(0) invert(1)",
+              transform: collapsed ? "rotate(180deg)" : "none",
+            }}
           />
         </button>
       </div>

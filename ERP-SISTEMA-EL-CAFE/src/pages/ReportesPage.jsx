@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useReportesVentas, useReportesInventario, useReportesProduccion, useProductosMasVendidos, useUtilidadPorProducto, useGenerarReporte } from '../hooks/useReportes';
 import Button from '../components/common/Button';
 import Table from '../components/common/Table';
 import Input from '../components/common/Input';
+import Select from '../components/common/Select';
+import { BarChart3, CalendarRange, FileSpreadsheet, FileText } from 'lucide-react';
 
 const ReportesPage = () => {
   const [fechaInicio, setFechaInicio] = useState('2024-01-01');
@@ -15,6 +17,86 @@ const ReportesPage = () => {
   const { productos: productosMasVendidos, loading: loadingMasVendidos } = useProductosMasVendidos(fechaInicio, fechaFin);
   const { utilidad: utilidadPorProducto, loading: loadingUtilidad } = useUtilidadPorProducto();
   const { generarReportePDF, generarReporteExcel } = useGenerarReporte();
+  const [quickRange, setQuickRange] = useState('');
+
+  const setQuickRangeDates = (val) => {
+    const now = new Date();
+    const toISO = (d) => new Date(d).toISOString().split('T')[0];
+    if (val === 'hoy') {
+      const s = toISO(now);
+      setFechaInicio(s);
+      setFechaFin(s);
+      return;
+    }
+    if (val === 'semana') {
+      const day = now.getDay();
+      const diff = day === 0 ? 6 : day - 1;
+      const start = new Date(now);
+      start.setDate(now.getDate() - diff);
+      const end = new Date(start);
+      end.setDate(start.getDate() + 6);
+      setFechaInicio(toISO(start));
+      setFechaFin(toISO(end));
+      return;
+    }
+    if (val === 'mes') {
+      const start = new Date(now.getFullYear(), now.getMonth(), 1);
+      const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      setFechaInicio(toISO(start));
+      setFechaFin(toISO(end));
+      return;
+    }
+    if (val === 'ult7') {
+      const start = new Date(now);
+      start.setDate(now.getDate() - 6);
+      setFechaInicio(toISO(start));
+      setFechaFin(toISO(now));
+      return;
+    }
+    if (val === 'ult30') {
+      const start = new Date(now);
+      start.setDate(now.getDate() - 29);
+      setFechaInicio(toISO(start));
+      setFechaFin(toISO(now));
+      return;
+    }
+  };
+
+  const summary = useMemo(() => {
+    try {
+      if (activeTab === 'ventas') {
+        const total = (reportesVentas || []).reduce((acc, r) => acc + (r.totalVentas || 0), 0);
+        const num = (reportesVentas || []).reduce((acc, r) => acc + (r.numeroVentas || 0), 0);
+        const top = (reportesVentas || [])[0]?.productoMasVendido || '-';
+        return [{ label: 'Total Ventas', value: `S/ ${total.toFixed(2)}` }, { label: 'N° Ventas', value: num }, { label: 'Top Producto', value: top }];
+      }
+      if (activeTab === 'inventario') {
+        const bajo = (reportesInventario || []).filter(r => r.estado === 'Crítico').length;
+        const productos = (reportesInventario || []).length;
+        const diasProm = Math.round(((reportesInventario || []).reduce((acc, r) => acc + (r.diasRestantes || 0), 0) / Math.max(1, productos)));
+        return [{ label: 'Ítems', value: productos }, { label: 'Stock bajo', value: bajo }, { label: 'Días restantes prom.', value: isNaN(diasProm) ? '-' : diasProm }];
+      }
+      if (activeTab === 'produccion') {
+        const registros = (reportesProduccion || []).length;
+        const rendimientoProm = Math.round(((reportesProduccion || []).reduce((acc, r) => acc + (r.rendimiento || 0), 0) / Math.max(1, registros)));
+        const costo = (reportesProduccion || []).reduce((acc, r) => acc + (r.costoTotal || 0), 0);
+        return [{ label: 'Registros', value: registros }, { label: 'Rendimiento prom.', value: isNaN(rendimientoProm) ? '-' : `${rendimientoProm}%` }, { label: 'Costo total', value: `S/ ${costo.toFixed(2)}` }];
+      }
+      if (activeTab === 'productos-vendidos') {
+        const total = (productosMasVendidos || []).reduce((acc, r) => acc + (r.montoTotal || 0), 0);
+        const items = (productosMasVendidos || []).reduce((acc, r) => acc + (r.cantidadVendida || 0), 0);
+        const top = (productosMasVendidos || [])[0]?.producto || '-';
+        return [{ label: 'Ingresos', value: `S/ ${total.toFixed(2)}` }, { label: 'Unidades', value: items }, { label: 'Top', value: top }];
+      }
+      if (activeTab === 'utilidad') {
+        const util = (utilidadPorProducto || []).reduce((acc, r) => acc + (r.utilidad || 0), 0);
+        const ventas = (utilidadPorProducto || []).reduce((acc, r) => acc + (r.montoTotal || 0), 0);
+        const margen = ventas ? Math.round((util / ventas) * 100) : 0;
+        return [{ label: 'Ventas', value: `S/ ${ventas.toFixed(2)}` }, { label: 'Utilidad', value: `S/ ${util.toFixed(2)}` }, { label: 'Margen', value: `${margen}%` }];
+      }
+    } catch {}
+    return [];
+  }, [activeTab, reportesVentas, reportesInventario, reportesProduccion, productosMasVendidos, utilidadPorProducto]);
 
   const columnsVentas = [
     { key: 'fecha', title: 'Fecha' },
@@ -115,24 +197,40 @@ const ReportesPage = () => {
   return (
     <div className="page">
       <div className="stack-16">
-        <div className="card">
-          <h1 className="section-title">Reportes e Informes</h1>
+        <div className="row-16" style={{ justifyContent: 'space-between' }}>
+          <div className="title-wrap">
+            <span className="kpi-icon"><BarChart3 size={18} /></span>
+            <h1 className="section-title title-strong">Reportes e Informes</h1>
+          </div>
+          <div className="row-12">
+            <Button variant="secondary" icon={<CalendarRange size={16} />}>Período</Button>
+          </div>
         </div>
 
-        <div className="card">
-          <div className="row-16">
-            <Input
-              label="Fecha Inicio"
-              type="date"
-              value={fechaInicio}
-              onChange={(e) => setFechaInicio(e.target.value)}
+        <div className="card" style={{ padding: 16 }}>
+          <div className="title-wrap" style={{ marginBottom: 8 }}>
+            <span className="kpi-icon"><CalendarRange size={18} /></span>
+            <h2 className="section-title">Filtros</h2>
+          </div>
+          <div className="filters-row">
+            <Input label="Fecha Inicio" type="date" value={fechaInicio} onChange={(e) => setFechaInicio(e.target.value)} />
+            <Input label="Fecha Fin" type="date" value={fechaFin} onChange={(e) => setFechaFin(e.target.value)} />
+            <Select
+              label="Rango rápido"
+              value={quickRange}
+              onChange={(e) => { const v = e.target.value; setQuickRange(v); setQuickRangeDates(v); }}
+              options={[
+                { value: '', label: 'Seleccionar' },
+                { value: 'hoy', label: 'Hoy' },
+                { value: 'semana', label: 'Semana actual' },
+                { value: 'mes', label: 'Mes actual' },
+                { value: 'ult7', label: 'Últimos 7 días' },
+                { value: 'ult30', label: 'Últimos 30 días' }
+              ]}
             />
-            <Input
-              label="Fecha Fin"
-              type="date"
-              value={fechaFin}
-              onChange={(e) => setFechaFin(e.target.value)}
-            />
+            <div className="row-12" style={{ alignItems: 'flex-end' }}>
+              <Button variant="secondary" size="small" onClick={() => { setQuickRange(''); }}>Limpiar</Button>
+            </div>
           </div>
         </div>
 
@@ -153,9 +251,27 @@ const ReportesPage = () => {
         </div>
 
         <div className="row-12" style={{ justifyContent: 'flex-start' }}>
-          <Button onClick={() => handleGenerarPDF(activeTab)} variant="primary">Exportar PDF</Button>
-          <Button onClick={() => handleGenerarExcel(activeTab)} variant="success">Exportar Excel</Button>
+          <Button onClick={() => handleGenerarPDF(activeTab)} variant="primary" icon={<FileText size={16} />}>Exportar PDF</Button>
+          <Button onClick={() => handleGenerarExcel(activeTab)} variant="success" icon={<FileSpreadsheet size={16} />}>Exportar Excel</Button>
         </div>
+
+        {summary.length > 0 && (
+          <div className="grid-3">
+            {summary.map((s, i) => (
+              <div key={i} className="card kpi">
+                <div className="kpi-card">
+                  <div className="kpi-icon"><BarChart3 size={18} /></div>
+                  <div>
+                    <div className="kpi-head">
+                      <div className="kpi-value">{s.value}</div>
+                      <div className="kpi-label">{s.label}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
         <div className="card">
           {activeTab === 'ventas' && (

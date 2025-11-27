@@ -6,7 +6,7 @@ import Modal from '../components/common/Modal';
 import Input from '../components/common/Input';
 import Select from '../components/common/Select';
 import { Form, FormGroup, FormActions } from '../components/forms/Form';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Trash2, Cog, ClipboardList, Package } from 'lucide-react';
 
 const ProduccionPage = () => {
   const { produccion, registrarProduccion } = useProduccion();
@@ -187,10 +187,52 @@ const ProduccionPage = () => {
   return (
     <div className="page">
       <div className="row-16" style={{ justifyContent: 'space-between', marginBottom: 16 }}>
-        <h1 className="section-title title-strong">Gestión de Producción</h1>
+        <div className="title-wrap">
+          <span className="kpi-icon"><Cog size={18} /></span>
+          <h1 className="section-title title-strong">Gestión de Producción</h1>
+        </div>
         <div className="row-12">
           <Button onClick={handleNuevaProduccion} variant="success">Nueva Producción</Button>
           <Button onClick={handleNuevaReceta} variant="primary">Nueva Receta</Button>
+        </div>
+      </div>
+
+      <div className="grid-3" style={{ marginBottom: 16 }}>
+        <div className="card kpi">
+          <div className="kpi-card">
+            <div className="kpi-icon"><Package size={18} /></div>
+            <div>
+              <div className="kpi-head">
+                <div className="kpi-value">{produccion.length}</div>
+                <div className="kpi-label">Producciones</div>
+              </div>
+              <div className="kpi-foot">Hoy: {produccion.filter(p => p.fecha === new Date().toISOString().split('T')[0]).length}</div>
+            </div>
+          </div>
+        </div>
+        <div className="card kpi">
+          <div className="kpi-card">
+            <div className="kpi-icon"><ClipboardList size={18} /></div>
+            <div>
+              <div className="kpi-head">
+                <div className="kpi-value">{recetas.length}</div>
+                <div className="kpi-label">Recetas</div>
+              </div>
+              <div className="kpi-foot">Ingredientes: {recetas.reduce((acc, r) => acc + (r.insumos?.length || 0), 0)}</div>
+            </div>
+          </div>
+        </div>
+        <div className="card kpi">
+          <div className="kpi-card">
+            <div className="kpi-icon"><Cog size={18} /></div>
+            <div>
+              <div className="kpi-head">
+                <div className="kpi-value">{consumoInsumos.length}</div>
+                <div className="kpi-label">Consumos</div>
+              </div>
+              <div className="kpi-foot">Hoy: {consumoInsumos.filter(c => c.fecha === new Date().toISOString().split('T')[0]).length}</div>
+            </div>
+          </div>
         </div>
       </div>
 

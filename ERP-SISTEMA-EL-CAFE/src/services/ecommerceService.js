@@ -2,8 +2,26 @@
 import inventarioService from './inventarioService';
 
 const productosWeb = [
+  // Bebidas
   { id: 101, sku: 'CAF-AMER-8', nombre: 'Café Americano', descripcion: 'Taza 8oz', imagen: '', precio: 8.0, stock: 20, activo: true, categoria: 'Bebidas', tags: ['cafe'] },
-  { id: 102, sku: 'CROISS-UNI', nombre: 'Croissant', descripcion: 'Mantequilla', imagen: '', precio: 9.5, stock: 12, activo: true, categoria: 'Panadería', tags: ['pan'] }
+  { id: 103, sku: 'CAF-LATTE-12', nombre: 'Latte', descripcion: 'Taza 12oz', imagen: '', precio: 12.0, stock: 18, activo: true, categoria: 'Bebidas', tags: ['cafe'] },
+  { id: 104, sku: 'CAF-CAPPU-12', nombre: 'Cappuccino', descripcion: 'Taza 12oz', imagen: '', precio: 12.5, stock: 15, activo: true, categoria: 'Bebidas', tags: ['cafe'] },
+  { id: 105, sku: 'TE-VERDE', nombre: 'Té Verde', descripcion: 'Infusión natural', imagen: '', precio: 7.5, stock: 25, activo: true, categoria: 'Bebidas', tags: ['te'] },
+
+  // Panadería/Postres
+  { id: 102, sku: 'CROISS-UNI', nombre: 'Croissant', descripcion: 'Mantequilla', imagen: '', precio: 9.5, stock: 12, activo: true, categoria: 'Panadería', tags: ['pan'] },
+  { id: 106, sku: 'GAL-CHOC', nombre: 'Galleta de Chocolate', descripcion: 'Crujiente y dulce', imagen: '', precio: 4.0, stock: 40, activo: true, categoria: 'Galletas', tags: ['postre'] },
+  { id: 107, sku: 'GAL-AVENA', nombre: 'Galleta de Avena', descripcion: 'Con miel y pasas', imagen: '', precio: 4.5, stock: 35, activo: true, categoria: 'Galletas', tags: ['postre'] },
+  { id: 108, sku: 'QUEQ-VAIN', nombre: 'Queque de Vainilla', descripcion: 'Porción individual', imagen: '', precio: 6.5, stock: 22, activo: true, categoria: 'Queques', tags: ['postre'] },
+  { id: 109, sku: 'QUEQ-CHOC', nombre: 'Queque de Chocolate', descripcion: 'Porción individual', imagen: '', precio: 7.0, stock: 20, activo: true, categoria: 'Queques', tags: ['postre'] },
+  { id: 110, sku: 'TORT-ZANA', nombre: 'Torta de Zanahoria', descripcion: 'Rebanada', imagen: '', precio: 8.5, stock: 16, activo: true, categoria: 'Postres', tags: ['postre'] },
+  { id: 111, sku: 'MUFF-ARAN', nombre: 'Muffin de Arándanos', descripcion: 'Esponjoso y fresco', imagen: '', precio: 6.0, stock: 24, activo: true, categoria: 'Postres', tags: ['postre'] },
+
+  // Comida/Sándwiches
+  { id: 112, sku: 'EMP-POLLO', nombre: 'Empanada de Pollo', descripcion: 'Horneada', imagen: '', precio: 7.0, stock: 25, activo: true, categoria: 'Comida', tags: ['empanada'] },
+  { id: 113, sku: 'EMP-CARNE', nombre: 'Empanada de Carne', descripcion: 'Horneada', imagen: '', precio: 7.5, stock: 25, activo: true, categoria: 'Comida', tags: ['empanada'] },
+  { id: 114, sku: 'SAND-JQ', nombre: 'Sándwich Jamón y Queso', descripcion: 'Pan artesanal', imagen: '', precio: 12.0, stock: 18, activo: true, categoria: 'Sándwiches', tags: ['sandwich'] },
+  { id: 115, sku: 'SAND-POLLO', nombre: 'Sándwich de Pollo', descripcion: 'Con lechuga y tomate', imagen: '', precio: 13.0, stock: 18, activo: true, categoria: 'Sándwiches', tags: ['sandwich'] },
 ];
 
 const clientesWeb = [

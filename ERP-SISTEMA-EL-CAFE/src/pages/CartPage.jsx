@@ -4,7 +4,7 @@ import Button from '../components/common/Button';
 import Table from '../components/common/Table';
 import Input from '../components/common/Input';
 import { useNavigate } from 'react-router-dom';
-import { Trash2 } from 'lucide-react';
+import { Trash2, ShoppingCart, ArrowRight, Package, Banknote } from 'lucide-react';
 
 const CartPage = () => {
   const { items, updateQty, removeItem, subtotal, igv, total } = useCart();
@@ -22,8 +22,55 @@ const CartPage = () => {
   return (
     <div className="page">
       <div className="row-16" style={{ justifyContent: 'space-between', marginBottom: 16 }}>
-        <h1 className="section-title">Carrito</h1>
-        <Button variant="primary" onClick={() => navigate('/web/checkout')} disabled={items.length === 0}>Continuar</Button>
+        <div className="title-wrap">
+          <span className="kpi-icon"><ShoppingCart size={18} /></span>
+          <h1 className="section-title title-strong">Carrito</h1>
+        </div>
+        <Button
+          variant="primary"
+          icon={<ArrowRight size={18} />}
+          onClick={() => navigate('/web/checkout')}
+          disabled={items.length === 0}
+        >Continuar</Button>
+      </div>
+
+      <div className="grid-3" style={{ marginBottom: 16 }}>
+        <div className="card kpi">
+          <div className="kpi-card">
+            <div className="kpi-icon"><Package size={18} /></div>
+            <div>
+              <div className="kpi-head">
+                <div className="kpi-value">{items.reduce((acc, i) => acc + Number(i.cantidad || 0), 0)}</div>
+                <div className="kpi-label">Productos</div>
+              </div>
+              <div className="kpi-foot">{items.length} ítems</div>
+            </div>
+          </div>
+        </div>
+        <div className="card kpi">
+          <div className="kpi-card">
+            <div className="kpi-icon"><Banknote size={18} /></div>
+            <div>
+              <div className="kpi-head">
+                <div className="kpi-value">S/ {subtotal.toFixed(2)}</div>
+                <div className="kpi-label">Subtotal</div>
+              </div>
+              <div className="kpi-foot">IGV: S/ {igv.toFixed(2)}</div>
+            </div>
+          </div>
+        </div>
+        <div className="card kpi">
+          <div className="kpi-card">
+            <div className="kpi-icon"><Banknote size={18} /></div>
+            <div>
+              <div className="kpi-head">
+                <div className="kpi-value">S/ {total.toFixed(2)}</div>
+                <div className="kpi-label">Total</div>
+              </div>
+              <div className="kpi-foot">Incluye IGV</div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <Table

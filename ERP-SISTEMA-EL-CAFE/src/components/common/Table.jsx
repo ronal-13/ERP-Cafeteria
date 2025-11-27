@@ -1,34 +1,42 @@
-import React from 'react';
-import Button from './Button';
-import { Pencil, Trash2 } from 'lucide-react';
+import React from "react";
+import Button from "./Button";
+import { Pencil, Trash2 } from "lucide-react";
 
-const Table = ({ 
-  columns = [], 
-  data = [], 
+const Table = ({
+  columns = [],
+  data = [],
   onRowClick,
   onEdit,
   onDelete,
   renderActions,
-  emptyMessage = 'No hay datos disponibles',
-  className = ''
+  emptyMessage = "No hay datos disponibles",
+  className = "",
 }) => {
   return (
-    <div className={["table-container", className].join(" ")}> 
+    <div className={["table-container", className].join(" ")}>
       <table className="table">
         <thead>
           <tr>
             {columns.map((column) => (
-              <th key={column.key}>{column.title}</th>
+              <th
+                key={column.key}
+                style={{ textAlign: column.align || "left" }}
+              >
+                {column.title}
+              </th>
             ))}
-            {(onEdit || onDelete || renderActions) && (
-              <th>Acciones</th>
-            )}
+            {(onEdit || onDelete || renderActions) && <th>Acciones</th>}
           </tr>
         </thead>
         <tbody>
           {data.length === 0 ? (
             <tr>
-              <td colSpan={columns.length + (onEdit || onDelete || renderActions ? 1 : 0)} style={{ textAlign: 'center', color: '#6b7280', padding: 16 }}>
+              <td
+                colSpan={
+                  columns.length + (onEdit || onDelete || renderActions ? 1 : 0)
+                }
+                style={{ textAlign: "center", color: "#6b7280", padding: 16 }}
+              >
                 {emptyMessage}
               </td>
             </tr>
@@ -36,17 +44,30 @@ const Table = ({
             data.map((row, rowIndex) => (
               <tr
                 key={rowIndex}
-                style={{ cursor: onRowClick ? 'pointer' : 'default' }}
+                style={{ cursor: onRowClick ? "pointer" : "default" }}
                 onClick={() => onRowClick && onRowClick(row)}
               >
                 {columns.map((column) => (
-                  <td key={column.key}>
-                    {column.render ? column.render(row[column.key], row) : row[column.key]}
+                  <td
+                    key={column.key}
+                    style={{ textAlign: column.align || "left" }}
+                  >
+                    {column.render
+                      ? column.render(row[column.key], row)
+                      : row[column.key]}
                   </td>
                 ))}
                 {(onEdit || onDelete || renderActions) && (
-                  <td>
-                    <div style={{ display: 'flex', gap: 8 }}>
+                  <td style={{ textAlign: "center" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: 8,
+                        justifyContent: "center",
+                        flexWrap: "wrap",
+                        minWidth: 180,
+                      }}
+                    >
                       {renderActions && renderActions(row)}
                       {onEdit && (
                         <Button
