@@ -1,19 +1,20 @@
-import React, { useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "../../hooks/useAuth.jsx";
 import {
-  Home,
-  ShoppingCart,
+  BarChart3,
   Boxes,
   Cog,
   CreditCard,
-  BarChart3,
-  Store,
-  ShoppingBasket,
   Globe,
+  Home,
   LogOut,
+  ShoppingBasket,
+  ShoppingCart,
+  Store,
   User,
 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import toggleIcon from "../../assets/togle-sidebar.svg";
+import { useAuth } from "../../hooks/useAuth.jsx";
 
 const Sidebar = () => {
   const { pathname } = useLocation();
@@ -72,6 +73,7 @@ const Sidebar = () => {
         top: 0,
         left: 0,
         bottom: 0,
+        zIndex: 20,
         display: "flex",
         flexDirection: "column",
       }}
@@ -99,34 +101,17 @@ const Sidebar = () => {
           style={{ borderRadius: 12, objectFit: "cover" }}
         />
         <button
-          className="layout-toggle"
+          className="layout-toggle layout-float"
           title={collapsed ? "Expandir" : "Contraer"}
           aria-label="Toggle sidebar"
           onClick={toggleCollapsed}
+          style={{ position: "absolute", top: 8, right: -14, zIndex: 50 }}
         >
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <rect
-              x="3"
-              y="5"
-              width="18"
-              height="14"
-              rx="2"
-              stroke="currentColor"
-              stroke-width="1.6"
-            />
-            <rect
-              x="5"
-              y="7"
-              width="5"
-              height="10"
-              rx="1"
-              fill="currentColor"
-            />
-          </svg>
+          <img
+            src={toggleIcon}
+            alt=""
+            style={{ width:  20, height: 20, filter: "brightness(0) invert(1)", transform: collapsed ? "rotate(180deg)" : "none" }}
+          />
         </button>
       </div>
       <div className="sidebar-divider" />
@@ -159,6 +144,9 @@ const Sidebar = () => {
           flexDirection: "column",
           padding: 8,
           paddingLeft: 20,
+          flex: 1,
+          minHeight: 0,
+          overflowY: "auto",
         }}
       >
         {menuItems.map((item) => {
